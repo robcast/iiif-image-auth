@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  iipsrv:
+    build: iipimage
+    volumes:
+      - ${PWD}/test-data/:/var/www/images/
