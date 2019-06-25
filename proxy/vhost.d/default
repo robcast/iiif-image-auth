@@ -1,0 +1,7 @@
+# add CORS header
+add_header Access-Control-Allow-Origin *;
+
+# serve manifests
+location /iiif/manifests/ {
+        root /var/www/;
+}

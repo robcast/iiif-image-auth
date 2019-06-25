@@ -2,6 +2,34 @@ version: '3'
 
 services:
   iipsrv:
-    build: iipimage
+    build: ./iipimage
+    environment:
+      - URI_MAP=iiif/images=>IIIF
+      - FILESYSTEM_PREFIX=/var/www/images/
+      - VIRTUAL_PROTO=fastcgi
+      - VIRTUAL_HOST=${VIRTUAL_HOST:?err}
     volumes:
-      - ${PWD}/test-data/:/var/www/images/
+      - images:/var/www/images/:ro
+
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./proxy/vhost.d/:/etc/nginx/vhost.d:ro
+      - manifests:/var/www/iiif/manifests/:ro
+
+volumes:
+  images:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${IMAGE_DIR:?err}"
+      o: bind
+  manifests:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${MANIFEST_DIR:?err}"
+      o: bind
