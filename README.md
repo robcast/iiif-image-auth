@@ -5,8 +5,8 @@ IIIF Image server setup for ISMI project
 This Docker setup uses [IIPImage](https://github.com/ruven/iipsrv) server built with 
 [OpenJPEG](https://github.com/uclouvain/openjpeg) for JPEG2000 image support.
 
-Serves images through IIIF Image API at http://www.example.com/iiif/images/ and 
-IIIF Presentation API files at http://www.example.com/iiif/manifests/ .
+Serves images through IIIF Image API at http://your.server/iiif/images/ and 
+IIIF Presentation API files at http://your.server/iiif/manifests/ .
 
 ## Requirements
 
@@ -26,4 +26,6 @@ Edit `.env` and adjust `VIRTUAL_HOST`, `IMAGE_DIR` and `MANIFEST_DIR` for your s
 docker-compose up -d
 ```
 
-Runs image server and proxy at port 80.
+Runs image server and proxy at port 80 and 443.
+
+The [letsencrypt-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) automatically downloads letsencrypt SSL certificates.
