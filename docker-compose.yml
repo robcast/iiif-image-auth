@@ -13,6 +13,12 @@ services:
     volumes:
       - images:/var/www/images/:ro
 
+  auth:
+    build: ./auth
+    environment:
+      - APP_SECRET_KEY=${AUTH_SECRET_KEY:?err}
+      - SECURITY_PASSWORD_SALT=${AUTH_PASSWORD_SALT:?err}
+
   proxy:
     image: jwilder/nginx-proxy:alpine
     restart: always

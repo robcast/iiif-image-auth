@@ -3,5 +3,37 @@ add_header Access-Control-Allow-Origin *;
 
 # serve manifests
 location /iiif/manifests/ {
-        root /var/www/;
+    # authenticate manifest requests
+    auth_request /auth/query_auth;
+    root /var/www/;
+}
+
+# auth service endpoint for proxy subrequest
+location = /auth/query_auth {
+  proxy_pass http://auth:5000;
+  proxy_pass_request_body off;
+  proxy_set_header Content-Length "";
+  proxy_set_header X-Original-URI $request_uri;
+  proxy_set_header Cookie $http_cookie;
+}
+
+# other auth service pages
+location /auth {
+  auth_request off;
+  proxy_pass http://auth:5000;
+  proxy_pass_request_body on;
+  proxy_set_header X-Original-URI $request_uri;
+}
+
+# if the server is using letsencrypt  certbot then we'll want this
+# directory to be accessible publicly
+location /.well-known {
+  auth_request off;
+}
+
+# Whether we have one or not, browsers are going to ask for this so we
+# probably shouldn't plumb it through auth.
+location = /favicon.ico {
+  auth_request off;
+  try_files $uri $uri/ =404;
 }
