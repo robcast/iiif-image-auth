@@ -11,11 +11,18 @@ class RolesUsers(Base):
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
     role_id = Column('role_id', Integer(), ForeignKey('role.id'))
 
+
 class Role(Base, RoleMixin):
     __tablename__ = 'role'
     id = Column(Integer(), primary_key=True)
     name = Column(String(80), unique=True)
     description = Column(String(255))
+    
+    # __str__ is required by Flask-Admin, so we can have human-readable values for the Role when editing a User.
+    # If we were using Python 2.7, this would be __unicode__ instead.
+    def __str__(self):
+        return self.description
+
 
 class User(Base, UserMixin):
     __tablename__ = 'user'

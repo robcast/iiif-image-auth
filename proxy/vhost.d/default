@@ -1,5 +1,7 @@
-# add CORS header
+# add CORS header to all responses
 add_header Access-Control-Allow-Origin *;
+
+# auth_request for image server in default_location file
 
 # serve manifests
 location /iiif/manifests/ {
@@ -8,31 +10,31 @@ location /iiif/manifests/ {
     root /var/www/;
 }
 
-# auth service endpoint for proxy subrequest
+# auth service endpoint for proxy auth_request
 location = /auth/query_auth {
-  proxy_pass http://auth:5000;
-  proxy_pass_request_body off;
-  proxy_set_header Content-Length "";
-  proxy_set_header X-Original-URI $request_uri;
-  proxy_set_header Cookie $http_cookie;
+  include uwsgi_params;
+  uwsgi_pass auth:5000;
+  uwsgi_pass_request_body off;
+  # headers in uwsgi_param should be all uppercase!
+  uwsgi_param HTTP_ORIGINAL_URI $request_uri;
 }
 
-# other auth service pages
+# other auth service pages (without auth request barrier)
 location /auth {
   auth_request off;
-  proxy_pass http://auth:5000;
-  proxy_pass_request_body on;
-  proxy_set_header X-Original-URI $request_uri;
+  include uwsgi_params;
+  uwsgi_pass auth:5000;
+  uwsgi_pass_request_body on;
+  # headers in uwsgi_param should be all uppercase!
+  uwsgi_param HTTP_ORIGINAL_URI $request_uri;
 }
 
-# if the server is using letsencrypt  certbot then we'll want this
-# directory to be accessible publicly
+# no auth for letsencrypt certbot
 location /.well-known {
   auth_request off;
 }
 
-# Whether we have one or not, browsers are going to ask for this so we
-# probably shouldn't plumb it through auth.
+# no auth for favicon requests
 location = /favicon.ico {
   auth_request off;
   try_files $uri $uri/ =404;

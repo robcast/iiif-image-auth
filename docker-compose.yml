@@ -16,8 +16,11 @@ services:
   auth:
     build: ./auth
     environment:
-      - APP_SECRET_KEY=${AUTH_SECRET_KEY:?err}
+      - SECRET_KEY=${AUTH_SECRET_KEY:?err}
       - SECURITY_PASSWORD_SALT=${AUTH_PASSWORD_SALT:?err}
+      - DB_CONNECTION=${AUTH_DB_CONNECTION:?err}
+      - ADMIN_USERID=${AUTH_ADMIN_USERID:?err}
+      - ADMIN_PASSWORD=${AUTH_ADMIN_PASSWORD:?err}
 
   proxy:
     image: jwilder/nginx-proxy:alpine
@@ -39,7 +42,7 @@ services:
     restart: always
     environment:
       - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL:?err}
-      # proxy should be discovered by label but it does not seem to work
+      # proxy should be discovered by label but sometimes it doesn't
       #- NGINX_PROXY_CONTAINER=renamer_proxy_1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

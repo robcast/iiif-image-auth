@@ -1,3 +1,7 @@
 bcrypt
+flask
 flask-security 
 flask-sqlalchemy
+flask-admin
+flask-wtf
+uwsgi
