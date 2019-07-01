@@ -5,6 +5,13 @@ add_header Access-Control-Allow-Origin *;
 
 # serve manifests
 location /iiif/manifests/ {
+    # CORS for Preflighted requests
+    if ($request_method = OPTIONS ) {
+      add_header "Access-Control-Allow-Origin"  "*";
+      add_header "Access-Control-Allow-Headers" "Authorization";
+      return 200;
+    }
+    
     # authenticate manifest requests
     auth_request /auth/query_auth;
     root /var/www/;
