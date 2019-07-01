@@ -2,3 +2,4 @@
 /.env
 proxy/certs/
 /.pydevproject
+/docker-compose.override.yml

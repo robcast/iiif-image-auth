@@ -1,0 +1,14 @@
+<html>
+<body>
+    <h1>ISMI image server IIIF login</h1>
+    {% if not current_user.is_authenticated %}
+    <p>You are not logged in. Please log in to proceed.</p>
+    <p>
+        <a class="btn btn-primary" href="{{ url_for('security.login', next=app.iiif_login) }}">login</a>
+    </p>
+    {% else %}
+    <p>You are logged in. You can close this window now.</p>
+    <script>window.close();</script>
+    {% endif %}
+</body>
+</html>

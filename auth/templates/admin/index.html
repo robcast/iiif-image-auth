@@ -8,12 +8,12 @@
             {% if not current_user.is_authenticated %}
             <p>You are not logged in. Please log in to proceed.</p>
             <p>
-                <a class="btn btn-primary" href="{{ url_for('security.login') }}">login</a>
+                <a class="btn btn-primary" href="{{ url_for('security.login', next=admin_view.admin.url) }}">login</a>
             </p>
             {% else %}
             <p>Welcome {{ current_user.email }}!
-            <p>If you are an administrator you can add and edit users and roles.</p>
-            <p>click <a href="{{ url_for('security.logout') }}">here</a> to log out.</p>
+            <p>If you are an administrator you can add and edit users and roles using the menu on top.</p>
+            <p>Click <a href="{{ url_for('security.logout', next=admin_view.admin.url) }}">here</a> if you want to log out.</p>
             {% endif %}
         </div>
     </div>

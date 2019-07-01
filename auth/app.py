@@ -28,6 +28,8 @@ security = Security(app, user_datastore)
 
 # Initialize Flask-Admin
 admin = Admin(app, name='ISMI image server authentication', template_mode='bootstrap3')
+# set brand link url for main template
+admin.index_view.admin.url = '/auth/admin'
 
 # Add Flask-Admin views for Users and Roles
 admin.add_view(UserAdmin(User, db_session))
@@ -92,6 +94,26 @@ def validate():
     else:
         app.logger.debug("query_auth FAIL for %s"%uri)
         abort(403)
+
+# IIIF auth cookie endpoint
+@app.route('/iiif_login')
+@login_required
+def iiif_login():
+    """
+    Endpoint used by IIIF cookie service.
+
+    see https://iiif.io/api/auth/1.0/#access-cookie-service
+    """
+    app.logger.debug('iiif_login!')
+    app.logger.debug('headers: %s'%request.headers)
+    #uri = request.headers.get('Original-Uri')
+    
+    # context for flask-admin page template
+    return render_template('iiif-login.html',         
+                           admin_base_template=admin.base_template,
+                           admin_view=admin.index_view,
+                           h=admin_helpers,
+                           get_url=url_for)
 
 
 # magic to mount app with prefix when run locally
