@@ -5,3 +5,4 @@ flask-sqlalchemy
 flask-admin
 flask-wtf
 uwsgi
+requests
