@@ -1,14 +1,21 @@
+## Start of configuration add by letsencrypt container
+location ^~ /.well-known/acme-challenge/ {
+    auth_basic off;
+    allow all;
+    root /usr/share/nginx/html;
+    try_files $uri =404;
+    break;
+}
+## End of configuration add by letsencrypt container
 # add CORS header to all responses
 add_header Access-Control-Allow-Origin *;
 
 # auth_request for image server in default_location file
 
-rewrite_log on;
-
 # serve manifests
 location /iiif/manifests/ {
     # authenticate manifest requests
-#    auth_request /auth/query_auth;
+    auth_request /auth/query_auth;
     root /var/www/;
 }
 
@@ -29,23 +36,6 @@ location /auth {
   uwsgi_pass_request_body on;
   # headers in uwsgi_param should be all uppercase!
   uwsgi_param HTTP_ORIGINAL_URI $request_uri;
-}
-
-# proxy info.json requests through auth service
-location ~ ^/iiif/images/.*/info.json$ {
-  include uwsgi_params;
-  uwsgi_pass auth:5000;
-  uwsgi_pass_request_body on;
-  # force URI for uwsgi (rewrite didn't work)
-  uwsgi_param PATH_INFO /auth/iiif_info_proxy;
-  # headers in uwsgi_param should be all uppercase!
-  uwsgi_param HTTP_ORIGINAL_URI $request_uri;
-}
-
-# iipsrv for internal info.json access
-location /iiif-internal {
-  include fastcgi.conf;
-  fastcgi_pass iipsrv-internal:9001;
 }
 
 # no auth for letsencrypt certbot

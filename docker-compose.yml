@@ -13,18 +13,6 @@ services:
     volumes:
       - images:/var/www/images/:ro
 
-  iipsrv-internal:
-    build: ./iipimage
-    restart: always
-    environment:
-      - URI_MAP=iiif-internal=>IIIF
-      - FILESYSTEM_PREFIX=/var/www/images/
-      - LOGFILE=/dev/stdout
-      - VERBOSITY=2
-    command: ["/usr/local/sbin/iipsrv.fcgi", "--bind", "0.0.0.0:9001"]
-    volumes:
-      - images:/var/www/images/:ro
-
   auth:
     build: ./auth
     environment:

@@ -10,8 +10,6 @@ from models import User, Role
 from admin_views import UserAdmin, RoleAdmin
 
 import os
-import re
-import requests
 
 
 # Create app
@@ -94,66 +92,6 @@ def validate():
     else:
         app.logger.debug("query_auth FAIL for %s"%uri)
         abort(403)
-
-# IIIF auth cookie endpoint
-@app.route('/iiif_login')
-@login_required
-def iiif_login():
-    """
-    Endpoint used by IIIF cookie service.
-
-    see https://iiif.io/api/auth/1.0/#access-cookie-service
-    """
-    app.logger.debug('iiif_login!')
-    app.logger.debug('headers: %s'%request.headers)
-    #uri = request.headers.get('Original-Uri')
-    
-    # context for flask-admin page template
-    return render_template('iiif-login.html',         
-                           admin_base_template=admin.base_template,
-                           admin_view=admin.index_view,
-                           h=admin_helpers,
-                           get_url=url_for)
-
-
-# IIIF auth logout endpoint
-@app.route('/iiif_logout')
-def iiif_logout():
-    app.logger.debug('iiif_logout!')
-    app.logger.debug('headers: %s'%request.headers)
-    utils.logout_user()
-    return 'User logged out!'
-
-# IIIF auth cookie endpoint
-@app.route('/iiif_token')
-def iiif_token():
-    app.logger.debug('iiif_token!')
-    app.logger.debug('headers: %s'%request.headers)
-    return 'Sorry, not implemented.'
-
-# IIIF info.json proxy endpoint
-@app.route('/iiif_info_proxy')
-def iiif_info_proxy():
-    app.logger.debug('iiif_info_proxy!')
-    app.logger.debug('headers: %s'%request.headers)
-    uri = request.headers.get('Original-Uri')
-    app.logger.debug("uri: %s"%uri)
-    iiif_match = re.search(r'([^/]+/info.json)', uri)
-    if iiif_match is None:
-        return abort(404)
-    
-    iiif_param = iiif_match.group(1)
-    info_url = "http://proxy/iiif-internal/%s"%iiif_param
-    app.logger.debug("info_url: %s"%info_url)
-    resp = requests.get(info_url)
-    app.logger.debug("reason: %s"%resp.reason)
-    if resp.ok:
-        info_json = resp.json()
-        app.logger.debug("info: %s"%info_json)
-        return resp.content
-    else:
-        return abort(500)
-
 
 
 # magic to mount app with prefix when run locally

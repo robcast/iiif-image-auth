@@ -29,3 +29,7 @@ docker-compose up -d
 Runs image server and proxy at port 80 and 443.
 
 The [letsencrypt-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) automatically downloads letsencrypt SSL certificates.
+
+## Acknowledgements
+
+The Flask auth app heavily borrowed from [sasaporta/flask-security-admin-example](https://github.com/sasaporta/flask-security-admin-example) and the [flask-admin/flask-admin](https://github.com/flask-admin/flask-admin) examples.
