@@ -93,7 +93,7 @@ def validate():
     Gets a GET request without body for every request to the resource.
     Returns 2xx for access granted and 4xx for access denied.
     """
-    #app.logger.debug('headers: %s'%request.headers)
+    app.logger.debug('validate headers: %s'%request.headers)
     uri = request.headers.get('Original-Uri')
     if current_user.is_authenticated:
         app.logger.debug("query_auth OK for %s"%uri)
@@ -103,7 +103,8 @@ def validate():
     if auth_header:
         signer = JSONWebSignatureSerializer(os.environ['SECRET_KEY'])
         try:
-            token = signer.loads(auth_header)
+            jwt_token = auth_header.replace('Bearer ', '', 1)
+            token = signer.loads(jwt_token)
             app.logger.debug("validate token: %s"%repr(token))
             audience = token['aud']
             exp_time = token['exp']
@@ -195,7 +196,8 @@ def iiif_token():
             # return postmessage html
             json_payload["messageId"] = message_id
             return render_template('iiif-token.html', 
-                                   payload=json.dumps(json_payload))
+                                   json_payload=json.dumps(json_payload),
+                                   origin_url=origin_url)
         
         else:
             return jsonify(json_payload), 403

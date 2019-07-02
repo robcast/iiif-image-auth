@@ -1,10 +1,12 @@
 # add CORS header to all responses
-add_header Access-Control-Allow-Origin *;
+add_header Access-Control-Allow-Origin "*";
 
 # auth_request for image server in default_location file
 
 # serve manifests
 location /iiif/manifests/ {
+    root /var/www/;
+
     # CORS for Preflighted requests
     if ($request_method = OPTIONS ) {
       add_header "Access-Control-Allow-Origin"  "*";
@@ -13,8 +15,20 @@ location /iiif/manifests/ {
     }
     
     # authenticate manifest requests
-    auth_request /auth/query_auth;
+    #auth_request /auth/query_auth;
+    #error_page 401 @manifest_401;
+}
+
+location @manifest_401 {
+    add_header Access-Control-Allow-Origin "*" always;
     root /var/www/;
+    try_files /iiif/manifests/default-auth-manifest.json =403;
+}
+
+location @image_401 {
+    add_header Access-Control-Allow-Origin "*" always;
+    root /var/www/;
+    try_files /iiif/manifests/default-auth-image.json =403;
 }
 
 # serve manifests with index for database update
@@ -22,7 +36,7 @@ location /iiif/manifests-internal/ {
     alias /var/www/iiif/manifests/;
     autoindex on;
     autoindex_format json;
-    allow ismi-db.mpiwg-berlin.mpg.de;
+    allow 141.14.214.184; #ismi-db.mpiwg-berlin.mpg.de
     deny  all;    
 }
 
