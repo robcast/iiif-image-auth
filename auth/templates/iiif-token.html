@@ -1,0 +1,7 @@
+<html>
+<body>
+<script>    
+    window.parent.postMessage({{ json_payload|safe }}, "{{ origin_url }}");
+</script>
+</body>
+</html>

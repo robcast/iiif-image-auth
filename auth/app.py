@@ -1,16 +1,22 @@
-from flask import Flask, abort, request, render_template, url_for
+from flask import Flask, abort, request, render_template, url_for, \
+    json, jsonify
 from flask_security import Security, login_required, current_user, utils, \
      SQLAlchemySessionUserDatastore
      
 from flask_admin import Admin
 from flask_admin import helpers as admin_helpers
 
+from itsdangerous import JSONWebSignatureSerializer
+
 from database import db_session, init_db
 from models import User, Role 
 from admin_views import UserAdmin, RoleAdmin
 
-import os
+import os, time
 
+# token lifetime in seconds
+TOKEN_LIFETIME = os.environ.get('TOKEN_LIFETIME', 3600)
+TOKEN_AUDIENCE = os.environ.get('TOKEN_AUDIENCE', 'ISMI-Images')
 
 # Create app
 app = Flask(__name__)
@@ -82,6 +88,7 @@ def index():
 def validate():
     """
     Endpoint used by nginx auth_request.
+    Uses Flask session or token in "Authorization" header.
     
     Gets a GET request without body for every request to the resource.
     Returns 2xx for access granted and 4xx for access denied.
@@ -91,29 +98,107 @@ def validate():
     if current_user.is_authenticated:
         app.logger.debug("query_auth OK for %s"%uri)
         return 'OK'
-    else:
-        app.logger.debug("query_auth FAIL for %s"%uri)
-        abort(403)
+    
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        signer = JSONWebSignatureSerializer(os.environ['SECRET_KEY'])
+        try:
+            token = signer.loads(auth_header)
+            app.logger.debug("validate token: %s"%repr(token))
+            audience = token['aud']
+            exp_time = token['exp']
+            curr_time = int(time.time())
+            if curr_time <= exp_time and audience == TOKEN_AUDIENCE:
+                app.logger.debug("query_auth OK for %s"%uri)
+                return 'OK'
+            
+        except:
+            app.logger.debug("Unable to validate auth token: %s"%auth_header)
+            
+    app.logger.debug("query_auth FAIL for %s"%uri)
+    abort(401)
 
 # IIIF auth cookie endpoint
-@app.route('/iiif_login')
+@app.route('/iiif-login')
 @login_required
 def iiif_login():
     """
-    Endpoint used by IIIF cookie service.
+    Endpoint used by IIIF cookie service. 
+    Accessed in normal browser context with cookies.
+    Presents user login form, creates session cookie and closes the window.
 
-    see https://iiif.io/api/auth/1.0/#access-cookie-service
+    @see https://iiif.io/api/auth/1.0/#access-cookie-service
     """
     app.logger.debug('iiif_login!')
     app.logger.debug('headers: %s'%request.headers)
     #uri = request.headers.get('Original-Uri')
-    
+    # TODO: get origin parameter (and then?) 
     # context for flask-admin page template
     return render_template('iiif-login.html',         
                            admin_base_template=admin.base_template,
                            admin_view=admin.index_view,
                            h=admin_helpers,
                            get_url=url_for)
+
+# IIIF auth token endpoint
+@app.route('/iiif-token')
+def iiif_token():
+    """
+    Endpoint used by IIIF token service.
+    Accessed in normal browser context with cookies.
+    Returns page with Javascript PostMessage with token for browser-based clients
+    (if messageId parameter is set).
+    Returns JSON with token for other clients.
+
+    @see https://iiif.io/api/auth/1.0/#access-token-service
+    """
+    app.logger.debug('iiif_token!')
+    app.logger.debug('headers: %s'%request.headers)
+    uri = request.headers.get('Original-Uri')
+    origin_url = request.args.get('origin')
+    message_id = request.args.get('messageId')
+    
+    if current_user.is_authenticated:
+        app.logger.debug("token auth OK")
+        # create token
+        curr_utime = int(time.time())
+        exp_utime = curr_utime + TOKEN_LIFETIME
+        token_payload = {
+            'sub': current_user.email,
+            'aud': TOKEN_AUDIENCE,
+            'iat': curr_utime,
+            'exp': exp_utime
+        }
+        signer = JSONWebSignatureSerializer(os.environ['SECRET_KEY'])
+        token = signer.dumps(token_payload).decode()
+        json_payload = {
+            'accessToken': token,
+            'expiresIn': TOKEN_LIFETIME
+        }
+        if message_id:
+            # return postmessage html
+            json_payload["messageId"] = message_id
+            return render_template('iiif-token.html', 
+                                   json_payload=json.dumps(json_payload),
+                                   origin_url=origin_url)
+        
+        else:
+            return jsonify(json_payload)
+        
+    else:
+        app.logger.debug("token auth FAIL")
+        json_payload = {
+            'error': 'invalidCredentials',
+            'description': 'Missing or invalid credentials!'
+        }
+        if message_id:
+            # return postmessage html
+            json_payload["messageId"] = message_id
+            return render_template('iiif-token.html', 
+                                   payload=json.dumps(json_payload))
+        
+        else:
+            return jsonify(json_payload), 403
 
 
 # magic to mount app with prefix when run locally

@@ -17,6 +17,15 @@ location /iiif/manifests/ {
     root /var/www/;
 }
 
+# serve manifests with index for database update
+location /iiif/manifests-internal/ {
+    alias /var/www/iiif/manifests/;
+    autoindex on;
+    autoindex_format json;
+    allow ismi-db.mpiwg-berlin.mpg.de;
+    deny  all;    
+}
+
 # auth service endpoint for proxy auth_request
 location = /auth/query_auth {
   include uwsgi_params;
@@ -44,5 +53,5 @@ location /.well-known {
 # no auth for favicon requests
 location = /favicon.ico {
   auth_request off;
-  try_files $uri $uri/ =404;
+  try_files $uri =404;
 }
