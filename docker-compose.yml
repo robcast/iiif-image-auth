@@ -7,6 +7,7 @@ services:
     environment:
       - URI_MAP=iiif/images=>IIIF
       - FILESYSTEM_PREFIX=/var/www/images/
+      - JPEG_QUALITY=${JPEG_QUALITY:-90}
       - VIRTUAL_PROTO=fastcgi
       - VIRTUAL_HOST=${VIRTUAL_HOST:?err}
       - LETSENCRYPT_HOST=${VIRTUAL_HOST:?err}
