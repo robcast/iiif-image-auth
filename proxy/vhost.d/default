@@ -1,3 +1,12 @@
+## Start of configuration add by letsencrypt container
+location ^~ /.well-known/acme-challenge/ {
+    auth_basic off;
+    allow all;
+    root /usr/share/nginx/html;
+    try_files $uri =404;
+    break;
+}
+## End of configuration add by letsencrypt container
 # add CORS header to all responses
 add_header Access-Control-Allow-Origin "*";
 
@@ -37,6 +46,7 @@ location /iiif/manifests-internal/ {
     autoindex on;
     autoindex_format json;
     allow 141.14.214.184; #ismi-db.mpiwg-berlin.mpg.de
+    allow 141.14.0.0/16; #mpiwg-berlin.mpg.de
     deny  all;    
 }
 

@@ -1,5 +1,5 @@
 from flask_admin.contrib import sqla
-from flask_security import current_user
+from flask_security import current_user, utils
 from wtforms.fields import PasswordField
 
 ##

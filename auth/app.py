@@ -35,7 +35,7 @@ security = Security(app, user_datastore)
 # Initialize Flask-Admin
 admin = Admin(app, name='ISMI image server authentication', template_mode='bootstrap3')
 # set brand link url for main template
-admin.index_view.admin.url = '/auth/admin'
+#admin.index_view.admin.url = '/auth/admin'
 
 # Add Flask-Admin views for Users and Roles
 admin.add_view(UserAdmin(User, db_session))
