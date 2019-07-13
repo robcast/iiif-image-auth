@@ -16,7 +16,7 @@ import os, time
 
 # token lifetime in seconds
 TOKEN_LIFETIME = os.environ.get('TOKEN_LIFETIME', 3600)
-TOKEN_AUDIENCE = os.environ.get('TOKEN_AUDIENCE', 'ISMI-Images')
+TOKEN_AUDIENCE = os.environ.get('TOKEN_AUDIENCE', 'ImageServer')
 
 # Create app
 app = Flask(__name__)
@@ -33,7 +33,7 @@ user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
 
 # Initialize Flask-Admin
-admin = Admin(app, name='ISMI image server authentication', template_mode='bootstrap3')
+admin = Admin(app, name='Image server authentication', template_mode='bootstrap3')
 # set brand link url for main template
 #admin.index_view.admin.url = '/auth/admin'
 
@@ -200,7 +200,7 @@ def iiif_token():
                                    origin_url=origin_url)
         
         else:
-            return jsonify(json_payload), 403
+            return jsonify(json_payload), 401
 
 
 # magic to mount app with prefix when run locally

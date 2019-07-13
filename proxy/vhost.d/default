@@ -1,12 +1,3 @@
-## Start of configuration add by letsencrypt container
-location ^~ /.well-known/acme-challenge/ {
-    auth_basic off;
-    allow all;
-    root /usr/share/nginx/html;
-    try_files $uri =404;
-    break;
-}
-## End of configuration add by letsencrypt container
 # add CORS header to all responses
 add_header Access-Control-Allow-Origin "*";
 
@@ -23,9 +14,9 @@ location /iiif/manifests/ {
       return 200;
     }
     
-    # authenticate manifest requests
-    auth_request /auth/query_auth;
-    error_page 401 @manifest_401;
+    # require authentication for manifest requests
+    #auth_request /auth/query_auth;
+    #error_page 401 @manifest_401;
 }
 
 location @manifest_401 {
@@ -38,16 +29,6 @@ location @image_401 {
     add_header Access-Control-Allow-Origin "*" always;
     root /var/www/;
     try_files /iiif/manifests/default-auth-image.json =403;
-}
-
-# serve manifests with index for database update
-location /iiif/manifests-internal/ {
-    alias /var/www/iiif/manifests/;
-    autoindex on;
-    autoindex_format json;
-    allow 141.14.214.184; #ismi-db.mpiwg-berlin.mpg.de
-    allow 141.14.0.0/16; #mpiwg-berlin.mpg.de
-    deny  all;    
 }
 
 # auth service endpoint for proxy auth_request
