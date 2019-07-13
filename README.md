@@ -21,7 +21,7 @@ http://your.server/auth/admin/ (initial user: `AUTH_ADMIN_USERID`, `AUTH_ADMIN_P
 
 All images are accessible for all users defined in the authentication server.
 If you want to extend the application to implement more granular permissions
-look at `validate()` in [app.py](auth/app.py).
+look at `validate()` in [auth/app.py](auth/app.py).
 
 ## Requirements
 
@@ -34,7 +34,8 @@ Create a `.env` file by copying the sample file:
 cp .env.template .env
 ```
 
-Edit `.env` and adjust `VIRTUAL_HOST`, `IMAGE_DIR` and `MANIFEST_DIR` for your system.
+Edit `.env` and put your host name in `VIRTUAL_HOST` and the image and manifest
+directories on your host in `IMAGE_DIR` and `MANIFEST_DIR`.
 
 Add secrets (random strings) to `AUTH_SECRET_KEY` and `AUTH_PASSWORD_SALT` and user
 credentials for the initial admin user in `AUTH_ADMIN_USERID` and `AUTH_ADMIN_PASSWORD`.
@@ -58,8 +59,8 @@ automatically downloads letsencrypt SSL certificates.
 
 Authorization for image (and manifest) requests relies on the Nginx 
 [http_auth_request](http://nginx.org/en/docs/http/ngx_http_auth_request_module.html) module configured 
-in the files [default](proxy/vhost.d/default)
-and [default_location](proxy/vhost.d/default_location).
+in the files [proxy/vhost.d/default](proxy/vhost.d/default)
+and [proxy/vhost.d/default_location](proxy/vhost.d/default_location).
 
 For every request by the client to the proxy the proxy makes another request (without body)
 to the `query_auth` endpoint in the auth application and forwards the clients original
@@ -86,7 +87,7 @@ if the request had a session cookie and an error code otherwise.
 ## Additional configuration
 
 To prevent the letsencrypt-proxy-companion from trying to fetch certificates you can disable the service
-by adding a file `docker-compose.override.yml` with the contents:
+by creating a file `docker-compose.override.yml` with the contents:
 
 ```
 version: '3'

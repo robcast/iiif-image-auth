@@ -22,13 +22,13 @@ location /iiif/manifests/ {
 location @manifest_401 {
     add_header Access-Control-Allow-Origin "*" always;
     root /var/www/;
-    #try_files /iiif/manifests/default-auth-manifest.json =403;
+    #try_files /iiif/authfiles/auth-manifest.json =403;
 }
 
 location @image_401 {
     add_header Access-Control-Allow-Origin "*" always;
     root /var/www/;
-    try_files /iiif/manifests/default-auth-image.json =403;
+    try_files /iiif/authfiles/auth-image.json =403;
 }
 
 # auth service endpoint for proxy auth_request

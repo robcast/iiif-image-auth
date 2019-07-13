@@ -16,12 +16,23 @@ services:
 
   auth:
     build: ./auth
+    restart: always
     environment:
       - SECRET_KEY=${AUTH_SECRET_KEY:?err}
       - SECURITY_PASSWORD_SALT=${AUTH_PASSWORD_SALT:?err}
       - DB_CONNECTION=${AUTH_DB_CONNECTION:?err}
       - ADMIN_USERID=${AUTH_ADMIN_USERID:?err}
       - ADMIN_PASSWORD=${AUTH_ADMIN_PASSWORD:?err}
+
+  gen_json:
+    build: ./gen_json
+    restart: "no"
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST:?err}
+      - VIRTUAL_HOST_PROTO=${VIRTUAL_HOST_PROTO:-https}
+    volumes:
+      - authfiles:/authfiles/
+   
 
   proxy:
     image: jwilder/nginx-proxy:alpine
@@ -35,6 +46,7 @@ services:
       - ./proxy/certs/:/etc/nginx/certs/:ro
       - proxy-html:/usr/share/nginx/html/:ro
       - manifests:/var/www/iiif/manifests/:ro
+      - authfiles:/var/www/iiif/authfiles/:ro
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
 
@@ -65,3 +77,4 @@ volumes:
       device: "${MANIFEST_DIR:?err}"
       o: bind
   proxy-html:
+  authfiles:
