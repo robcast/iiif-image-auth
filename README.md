@@ -15,6 +15,8 @@ This Docker setup provides:
 
 Images from the configured image folder (`IMAGE_DIR`) are served at the IIIF Image API endpoint 
 http://your.server/iiif/images/ and IIIF Presentation API manifests at http://your.server/iiif/manifests/ 
+(digilib uses "!" as path separator so your directory `mydir/mysubdir` becomes 
+http://your.server/iiif/manifests/mydir!mysubdir).
 
 The authentication server user management frontend can be reached at 
 http://your.server/auth/admin/ (initial user: `AUTH_ADMIN_USERID`, `AUTH_ADMIN_PASSWORD`).
