@@ -45,7 +45,6 @@ services:
       - ./proxy/vhost.d/:/etc/nginx/vhost.d:ro
       - ./proxy/certs/:/etc/nginx/certs/:ro
       - proxy-html:/usr/share/nginx/html/:ro
-      - manifests:/var/www/iiif/manifests/:ro
       - authfiles:/var/www/iiif/authfiles/:ro
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
@@ -67,12 +66,6 @@ volumes:
     driver_opts:
       type: none
       device: "${IMAGE_DIR:?err}"
-      o: bind
-  manifests:
-    driver: local
-    driver_opts:
-      type: none
-      device: "${MANIFEST_DIR:?err}"
       o: bind
   proxy-html:
   authfiles:

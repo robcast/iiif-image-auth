@@ -6,16 +6,15 @@ with [IIIF-Auth API](https://iiif.io/api/auth/1.0/) support.
 This Docker setup provides:
 
 * [digilib](https://github.com/robcast/digilib) image server
-* or [IIPImage](https://github.com/ruven/iipsrv) image service built with 
+* or [IIPImage](https://github.com/ruven/iipsrv) image server built with 
 [OpenJPEG](https://github.com/uclouvain/openjpeg) for JPEG2000 image support
 * [Flask](https://palletsprojects.com/p/flask/) authentication web application using 
 [Flask-Admin](https://flask-admin.readthedocs.io/) and 
 [Flask-Security](https://pythonhosted.org/Flask-Security/)
 * [Nginx proxy](https://github.com/jwilder/nginx-proxy) connecting the image and the authentication server 
 
-Images from the configured image folder (`IMAGE_DIR`) are served at the IIIF Image API endpoint at 
-http://your.server/iiif/images/ and IIIF Presentation API files from the 
-manifest folder (`MANIFEST_DIR`) at http://your.server/iiif/manifests/ 
+Images from the configured image folder (`IMAGE_DIR`) are served at the IIIF Image API endpoint 
+http://your.server/iiif/images/ and IIIF Presentation API manifests at http://your.server/iiif/manifests/ 
 
 The authentication server user management frontend can be reached at 
 http://your.server/auth/admin/ (initial user: `AUTH_ADMIN_USERID`, `AUTH_ADMIN_PASSWORD`).
@@ -35,8 +34,8 @@ Create a `.env` file by copying the sample file:
 cp .env.template .env
 ```
 
-Edit `.env` and put your host name in `VIRTUAL_HOST` and the image and manifest
-directories on your host in `IMAGE_DIR` and `MANIFEST_DIR`.
+Edit `.env` and put your host name in `VIRTUAL_HOST` and the image
+directory on your host in `IMAGE_DIR`.
 
 Add secrets (random strings) to `AUTH_SECRET_KEY` and `AUTH_PASSWORD_SALT` and user
 credentials for the initial admin user in `AUTH_ADMIN_USERID` and `AUTH_ADMIN_PASSWORD`.
@@ -61,6 +60,7 @@ If you like to use iipsrv instead of digilib run:
 ```
 docker-compose -f docker-compose-iipsrv.yml up -d
 ```
+With iipsrv you need to supply your own manifests in a directory that you set in `MANIFEST_DIR`.
 
 ## Implementation details
 
