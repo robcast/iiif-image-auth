@@ -1,0 +1,14 @@
+# CORS for Preflighted requests (for info.json)
+if ($request_method = OPTIONS ) {
+   add_header "Access-Control-Allow-Origin"  "*";
+   add_header "Access-Control-Allow-Headers" "Authorization";
+   return 200;
+}
+
+# Use ngx_http_auth_request_module to auth the user, sending the
+# request to the /auth/query_auth URI which will return an http
+# error code of 200 if approved or 401 if denied.
+auth_request /auth/query_auth;
+
+# use custom error handling for auth errors
+error_page 401 @image_401;

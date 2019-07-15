@@ -5,7 +5,8 @@ with [IIIF-Auth API](https://iiif.io/api/auth/1.0/) support.
 
 This Docker setup provides:
 
-* [IIPImage](https://github.com/ruven/iipsrv) image service built with 
+* [digilib](https://github.com/robcast/digilib) image server
+* or [IIPImage](https://github.com/ruven/iipsrv) image service built with 
 [OpenJPEG](https://github.com/uclouvain/openjpeg) for JPEG2000 image support
 * [Flask](https://palletsprojects.com/p/flask/) authentication web application using 
 [Flask-Admin](https://flask-admin.readthedocs.io/) and 
@@ -54,6 +55,12 @@ Starts the image and auth server and proxy at port 80 and 443.
 
 The [letsencrypt-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) 
 automatically downloads letsencrypt SSL certificates.
+
+If you like to use iipsrv instead of digilib run:
+
+```
+docker-compose -f docker-compose-iipsrv.yml up -d
+```
 
 ## Implementation details
 

@@ -1,18 +1,16 @@
 version: '3'
 
 services:
-  digilib:
-    image: robcast/digilib:snapshot
+  iipsrv:
+    build: ./iipsrv
     restart: always
     environment:
-      - BASEDIR_LIST=/var/www/images/
-      - IIIF_PREFIX=images
-      - VIRTUAL_PROTO=http
+      - URI_MAP=iiif/images=>IIIF
+      - FILESYSTEM_PREFIX=/var/www/images/
+      - JPEG_QUALITY=${JPEG_QUALITY:-90}
+      - VIRTUAL_PROTO=fastcgi
       - VIRTUAL_HOST=${VIRTUAL_HOST:?err}
-      - VIRTUAL_HOST_PROTO=${VIRTUAL_HOST_PROTO:-https}
       - LETSENCRYPT_HOST=${VIRTUAL_HOST:?err}
-      - IIIF_IMAGE_BASE_URL=${VIRTUAL_HOST_PROTO}://${VIRTUAL_HOST}/iiif/images
-      - IIIF_MANIFEST_BASE_URL=${VIRTUAL_HOST_PROTO}://${VIRTUAL_HOST}/iiif/manifests
     volumes:
       - images:/var/www/images/:ro
 
@@ -28,11 +26,13 @@ services:
 
   gen_json:
     build: ./gen_json
+    restart: "no"
     environment:
       - VIRTUAL_HOST=${VIRTUAL_HOST:?err}
       - VIRTUAL_HOST_PROTO=${VIRTUAL_HOST_PROTO:-https}
     volumes:
       - authfiles:/authfiles/
+   
 
   proxy:
     image: jwilder/nginx-proxy:alpine
@@ -42,8 +42,8 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./proxy/vhost.d/:/etc/nginx/vhost.d:ro
-      - ./proxy/certs/:/etc/nginx/certs/:ro
+      - ./proxy-iipsrv/vhost.d/:/etc/nginx/vhost.d:ro
+      - ./proxy-iipsrv/certs/:/etc/nginx/certs/:ro
       - proxy-html:/usr/share/nginx/html/:ro
       - manifests:/var/www/iiif/manifests/:ro
       - authfiles:/var/www/iiif/authfiles/:ro
@@ -55,6 +55,8 @@ services:
     restart: always
     environment:
       - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL:?err}
+      # proxy should be discovered by label but sometimes it doesn't
+      #- NGINX_PROXY_CONTAINER=renamer_proxy_1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./proxy/vhost.d/:/etc/nginx/vhost.d/

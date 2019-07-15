@@ -1,57 +1,34 @@
+# add CORS header to all responses
+add_header Access-Control-Allow-Origin "*";
 
-# serve images
-location /iiif/images/ {
-    # CORS for Preflighted requests
-    if ($request_method = OPTIONS ) {
-      add_header "Access-Control-Allow-Origin"  "*";
-      add_header "Access-Control-Allow-Headers" "Authorization";
-      return 200;
-    }
-
-    # goto digilib Scaler
-    rewrite ^/iiif/images/(.*) /digilib/Scaler/images/$1 last;
-}
-location /digilib/Scaler/ {
-    # require authentication for image requests
-    auth_request /auth/query_auth;
-    # use custom error handling
-    error_page 401 @image_401;
-    # proxy to digilib tomcat
-    proxy_pass http://digilib:8080;
-}
+# auth_request for image server in default_location file
 
 # serve manifests
 location /iiif/manifests/ {
+    root /var/www/;
+
     # CORS for Preflighted requests
     if ($request_method = OPTIONS ) {
       add_header "Access-Control-Allow-Origin"  "*";
       add_header "Access-Control-Allow-Headers" "Authorization";
       return 200;
     }
-
-    # goto digilib Manifester
-    rewrite ^/iiif/manifests/(.*) /digilib/Manifester/images/$1 last;    
-}
-location /digilib/Manifester/ {
+    
     # require authentication for manifest requests
     #auth_request /auth/query_auth;
     #error_page 401 @manifest_401;
-    # proxy to digilib tomcat
-    proxy_pass http://digilib:8080;
-}
-
-# custom unautorized error handling for images
-location @image_401 {
-    # return 401 with ACAO header and image.json content
-    add_header Access-Control-Allow-Origin "*" always;
-    root /var/www/;
-    try_files /iiif/authfiles/auth-image.json =403;
 }
 
 location @manifest_401 {
     add_header Access-Control-Allow-Origin "*" always;
     root /var/www/;
     #try_files /iiif/authfiles/auth-manifest.json =403;
+}
+
+location @image_401 {
+    add_header Access-Control-Allow-Origin "*" always;
+    root /var/www/;
+    try_files /iiif/authfiles/auth-image.json =403;
 }
 
 # auth service endpoint for proxy auth_request
